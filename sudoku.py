@@ -20,6 +20,21 @@ class Table:
         if y >= self.length: raise IndexError(f"index y = {y} is too big")
         return self.table[y][x]
     
+    def out(self) -> str:
+        string = ""
+        for y in range(self.length):
+            for x in range(self.length):
+                string += f"{self._get(x, y)},"
+        return f"({self.length}){string}"
+    
+    def parse(self, string: str) -> None:
+        idx_parL = string.index("(")
+        idx_parR = string.index(")")
+        length = string[idx_parL+1:idx_parR]
+        string = string[idx_parR+1:]
+        slist = string.split(",")
+        print(length, slist)
+    
     def count_rest(self) -> int:
         count = 0
         for y in range(self.length):
