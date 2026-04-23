@@ -48,4 +48,6 @@ if __name__ == "__main__":
     t = Table(init = init)
     t.show()
     s = t.out()
-    t.parse(s)
+    t2 = Table()
+    t2.parse(s)
+    t2.show()
