@@ -1,53 +1,65 @@
 from sudoku import Table
+from collections import deque
+
 
 def main():
+    initn = 9
     init = [
-        [5, 2, 6, 0, 0, 0, 0, 0, 7],
-        [0, 0, 0, 0, 7, 9, 6, 0, 2],
-        [0, 1, 0, 0, 0, 0, 0, 0, 8],
-        [0, 7, 0, 3, 6, 5, 0, 0, 0],
-        [0, 9, 0, 0, 0, 0, 0, 4, 0],
-        [0, 0, 0, 4, 9, 2, 0, 5, 0],
-        [4, 0, 0, 0, 0, 0, 0, 6, 0],
-        [3, 0, 1, 7, 8, 0, 0, 0, 0],
-        [9, 0, 0, 0, 0, 0, 3, 7, 4],
+        [0, 2, 1, 9, 0, 0, 0, 7, 0],
+        [4, 0, 0, 0, 0, 1, 0, 0, 0],
+        [3, 0, 7, 0, 0, 0, 8, 0, 6],
+        [0, 0, 0, 0, 8, 0, 0, 0, 2],
+        [7, 0, 0, 5, 0, 4, 0, 0, 3],
+        [9, 0, 0, 0, 3, 0, 0, 0, 0],
+        [6, 0, 5, 0, 0, 0, 1, 0, 4],
+        [0, 0, 0, 1, 0, 0, 0, 0, 8],
+        [0, 8, 0, 0, 0, 2, 6, 9, 0],
     ]
     t = Table(init = init)
     t.show()
-    t = easy_solve(t)
 
-def easy_solve(t: Table):
-    tasks_count = 9999
+    q = deque([]) # append, popleft
+    q.append(t.out())
+    t.parse(bfs(q))
+    t.show()
+
+
+def bfs(q: deque):
+    t = Table()
+    task_count = 1
     while True:
-        if t.count_rest() == 0:
-            print("OK")
+        if len(q) == 0:
+            raise RuntimeError("Couldn't solve input table !!")
+        task = q.pop()
+        print(f"TASK #{task_count} started")
+        t.parse(task)
+        try:
+            t.partly_solve()
+        except RuntimeError as e:
+            print(f"TASK #{task_count} failed: {e}")
+            task_count += 1
+            continue
+        if t.is_solved():
+            print(f"TASK #{task_count} succeeded")
             break
-        if tasks_count == 0:
-            print("FAIL")
-            break
-        tasks = t.search(dof = 1)
-        tasks_count = len(tasks)
-        for task in tasks:
-            (val, ) = task[2] # unpack
-            t._set(task[0], task[1], val)
-        t.show()
-    return t
+        [ q.append(a) for a in t.get_min_assumption() ]
+        print(f"TASK #{task_count} ended")
+        task_count += 1
+    return t.out()
+
 
 if __name__ == "__main__":
-    init = [
-        [5, 2, 6, 0, 0, 0, 0, 0, 7],
-        [0, 0, 0, 0, 7, 9, 6, 0, 2],
-        [0, 1, 0, 0, 0, 0, 0, 0, 8],
-        [0, 7, 0, 3, 6, 5, 0, 0, 0],
-        [0, 9, 0, 0, 0, 0, 0, 4, 0],
-        [0, 0, 0, 4, 9, 2, 0, 5, 0],
-        [4, 0, 0, 0, 0, 0, 0, 6, 0],
-        [3, 0, 1, 7, 8, 0, 0, 0, 0],
-        [9, 0, 0, 0, 0, 0, 3, 7, 4],
-    ]
-    t = Table(init = init)
-    t.show()
-    s = t.out()
-    t2 = Table()
-    t2.parse(s)
-    t2.show()
+    main()
+
+
+# init = [
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+# ]

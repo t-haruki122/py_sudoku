@@ -8,7 +8,7 @@ class Table:
         self.len_sqrt = int(len_sqrt)
         self.length = length
         if init != None:
-            self.table = init
+            self.table = init[:]
         else:
             self.table = [[0 for _ in range(length)] for _ in range(length)]
     def _set(self, x, y, val) -> None:
@@ -50,10 +50,13 @@ class Table:
             for x in range(self.length):
                 count += 1 if self._get(x, y) == 0 else 0
         return count
+    def is_solved(self) -> bool:
+        return self.count_rest() == 0
     def show(self) -> None:
+        print("--------------------")
         for line in self.table:
             print(" ".join([str(i) if i != 0 else "." for i in line]))
-        print()
+        print("--------------------")
     
     def get_line(self, y) -> set[int]:
         return set([i for i in self.table[y] if i != 0])
@@ -95,3 +98,33 @@ class Table:
                     # print(f"Available: {av} can be placed in {x}, {y}")
                     availables.append([x, y, av])
         return availables
+    
+    def partly_solve(self):
+        tasks_count = 9999
+        while True:
+            if tasks_count == 0:
+                break
+            tasks = self.search(dof = 1)
+            tasks_count = len(tasks)
+            for task in tasks:
+                if len(task[2]) == 0:
+                    raise RuntimeError("Assumption Failed")
+                (val, ) = task[2] # unpack
+                self._set(task[0], task[1], val)
+        return self
+
+    def get_min_assumption(self) -> list[str]:
+        for aac in range(self.length): # aac: acceptable_assumptions_count
+            availables = self.search(dof=aac)
+            if len(availables) == 0:
+                continue
+            assumption = availables[0]
+            x: int = assumption[0]
+            y: int = assumption[1]
+            av: list[int] = list(assumption[2])
+            out = []
+            for i in range(len(av)):
+                t = Table(init=self.table)
+                t._set(x, y, av[i])
+                out.append(t.out())
+            return out
